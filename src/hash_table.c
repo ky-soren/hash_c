@@ -9,6 +9,8 @@ static ht_item HT_DELETED_ITEM = {NULL, NULL};
 const int HT_PRIME_1 = 223;
 const int HT_PRIME_2 = 277;
 
+const int HT_INITIAL_BASE_SIZE = 53;
+
 static ht_item* ht_new_item(const char* k, const char* v) {
     ht_item* i = malloc(sizeof(ht_item));
     i->key = strdup(k);
@@ -17,12 +19,20 @@ static ht_item* ht_new_item(const char* k, const char* v) {
     //(*i).key
 }
 
-ht_hash_table* ht_new() {
-    ht_hash_table* ht = malloc(sizeof(ht_hash_table));
-    ht->size = 53;
+static ht_hash_table* ht_new_sized(const int base_size) {
+    ht_hash_table* ht = xmalloc(sizeof(ht_hash_table));
+    ht->size = base_size;
+
+    ht->size = next_prime(ht->size);
+
     ht->count = 0;
-    ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
+    ht->items = xcalloc((size_t)ht->size, sizeof(ht_item*));
     return ht;
+}
+
+
+ht_hash_table* ht_new() {
+    return ht_new_sized(HT_INITIAL_BASE_SIZE);
 }
 
 static void ht_del_item(ht_item* i) {
@@ -115,3 +125,4 @@ void ht_delete(ht_hash_table* ht, const char* key) {
     }
     ht->count--;
 }
+
